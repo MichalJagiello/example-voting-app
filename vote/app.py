@@ -18,17 +18,17 @@ def get_redis():
 
 @app.route("/", methods=['POST','GET'])
 def hello():
-    voter_id = request.cookies.get('voter_id')
-    if not voter_id:
-        voter_id = hex(random.getrandbits(64))[2:-1]
 
     vote = None
 
     if request.method == 'POST':
+        voter_id = request.cookies.get('voter_id')
         redis = get_redis()
         vote = request.form['vote']
         data = json.dumps({'voter_id': voter_id, 'vote': vote})
         redis.rpush('votes', data)
+    else:
+        voter_id = hex(random.getrandbits(64))[2:-1]
 
     resp = make_response(render_template(
         'index.html',
