@@ -60,8 +60,19 @@ def hello():
 def results():
     a_res, b_res = get_responses()
     if a_res + b_res != 0:
-        option_a_res = int(a_res / float(a_res + b_res) * 100)
-        option_b_res = int(b_res / float(a_res + b_res) * 100)
+        option_a_res = a_res / float(a_res + b_res) * 100
+        option_b_res = b_res / float(a_res + b_res) * 100
+        if option_a_res % 1 > 0.5:
+            option_a_res = int(option_a_res) + 1
+        else:
+            option_a_res = int(option_a_res)
+        if option_b_res % 1 > 0.5:
+            option_b_res = int(option_b_res) + 1
+        else:
+            option_b_res = int(option_b_res)
+        # option_a_res = int(a_res / float(a_res + b_res) * 100)
+        #if option_
+        #option_b_res = int(b_res / float(a_res + b_res) * 100)
     else:
         option_a_res = 50
         option_b_res = 50
@@ -80,8 +91,16 @@ def results():
 def poll():
     a_res, b_res = get_responses()
     if a_res + b_res != 0:
-        option_a_res = int(a_res / float(a_res + b_res) * 100)
-        option_b_res = int(b_res / float(a_res + b_res) * 100)
+        option_a_res = a_res / float(a_res + b_res) * 100
+        option_b_res = b_res / float(a_res + b_res) * 100
+        if option_a_res % 1 > 0.5:
+            option_a_res = int(option_a_res) + 1
+        else:
+            option_a_res = int(option_a_res)
+        if option_b_res % 1 > 0.5:
+            option_b_res = int(option_b_res) + 1
+        else:
+            option_b_res = int(option_b_res)
     else:
         option_a_res = 50
         option_b_res = 50
