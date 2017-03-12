@@ -89,6 +89,8 @@ namespace Worker
             Console.Error.WriteLine("Connected to db");
 
             var command = connection.CreateCommand();
+//            command.CommandText = @"DROP TABLE votes";
+//            command.ExecuteNonQuery();
             command.CommandText = @"CREATE TABLE IF NOT EXISTS votes (
                                         id VARCHAR(255) NOT NULL UNIQUE,
                                         vote VARCHAR(255) NOT NULL
