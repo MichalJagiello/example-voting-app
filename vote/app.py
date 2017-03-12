@@ -18,7 +18,6 @@ db = SQLAlchemy(app)
 def get_responses():
     a_res, b_res = (0, 0)
     try:
-        db.engine.execute('CREATE TABLE IF NOT EXISTS votes (id VARCHAR(255) NOT NULL UNIQUE, vote VARCHAR(255) NOT NULL)')
         res = db.engine.execute('SELECT vote, COUNT(id) AS count FROM votes GROUP BY vote')
         for result in res:
             if result[0] == 'a':
@@ -112,4 +111,6 @@ def poll():
 
 
 if __name__ == "__main__":
+    db.engine.execute('DROP TABLE votes')
+    db.engine.execute('CREATE TABLE IF NOT EXISTS votes (id VARCHAR(255) NOT NULL UNIQUE, vote VARCHAR(255) NOT NULL)')
     app.run(host='0.0.0.0', port=80, debug=True, threaded=True)
