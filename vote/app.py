@@ -12,27 +12,30 @@ hostname = socket.gethostname()
 
 app = Flask(__name__)
 
+red = None
+
 def get_redis():
-    if not hasattr(g, 'redis'):
-        g.redis = Redis(host="redis", db=0, socket_timeout=5)
-    return g.redis
+    # if not hasattr(g, 'redis'):
+    #     app.logger.debug("Create redis connection")
+    #     g.redis = Redis(host="redis", db=0, socket_timeout=5)
+    # app.logger.debug(hasattr(g, 'redis'))
+    # return g.redis
+    if not hasattr(app, 'redis'):
+        app.redis = Redis(host="redis", db=0, socket_timeout=5)
+    return app.redis
 
 @app.route("/", methods=['POST','GET'])
 def hello():
 
     vote = None
 
-    # t1 = time.time()
-
     if request.method == 'POST':
-        # r = 'POST'
         voter_id = request.cookies.get('voter_id')
         redis = get_redis()
         vote = request.form['vote']
         data = json.dumps({'voter_id': voter_id, 'vote': vote})
         redis.rpush('votes', data)
     else:
-        # r = 'GET'
         voter_id = hex(random.getrandbits(64))[2:-1]
 
     resp = make_response(render_template(
@@ -43,10 +46,6 @@ def hello():
         vote=vote,
     ))
     resp.set_cookie('voter_id', voter_id)
-
-    # t2 = time.time()
-
-    # app.logger.debug("{}: {}".format(r, t2 - t1))
 
     return resp
 
