@@ -3,11 +3,6 @@ version: "3"
 services:
   vote:
     build: ./vote
-    command: python app.py
-    # volumes:
-    #  - ./vote:/app
-    ports:
-      - "8000:80"
     networks:
       - front-tier
       - back-tier
@@ -15,11 +10,6 @@ services:
   result:
     build: ./result
     command: nodemon --debug server.js
-    # volumes:
-    #   - ./result:/app
-    ports:
-      - "8001:80"
-      - "5858:5858"
     networks:
       - front-tier
       - back-tier
@@ -43,6 +33,30 @@ services:
       - "db-data:/var/lib/postgresql/data"
     networks:
       - back-tier
+
+  lb_vote:
+    image: dockercloud/haproxy
+    ports:
+      - 80:80
+    links:
+      - vote
+    networks:
+      - front-tier
+      - back-tier
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  lb_result:
+    image: dockercloud/haproxy
+    ports:
+      - 81:80
+    links:
+      - result
+    networks:
+      - front-tier
+      - back-tier
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   db-data:
