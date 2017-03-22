@@ -27,33 +27,41 @@ namespace Worker
 
                 var definition = new { vote = "", voter_id = "" };
                 while (true)
-                {
+				{
+					// Reconnect DB if down
+					if (!pgsql.State.Equals(System.Data.ConnectionState.Open))
+					{
+						Console.WriteLine("Reconnecting DB");
+						pgsql = OpenDbConnection("Server=db;Username=postgres;");
+						continue;
+					}
                     // Reconnect redis if down
                     if (redisConn == null || !redisConn.IsConnected) {
                         Console.WriteLine("Reconnecting Redis");
                         redis = OpenRedisConnection("redis").GetDatabase();
-                    }
+						continue;
+					}
                     string json = redis.ListLeftPopAsync("votes").Result;
-                    if (json != null)
-                    {
-                        var vote = JsonConvert.DeserializeAnonymousType(json, definition);
-                        Console.WriteLine($"Processing vote for '{vote.vote}' by '{vote.voter_id}'");
-                        // Reconnect DB if down
-                        if (!pgsql.State.Equals(System.Data.ConnectionState.Open))
-                        {
-                            Console.WriteLine("Reconnecting DB");
-                            pgsql = OpenDbConnection("Server=db;Username=postgres;");
-                        }
-                        else
-                        { // Normal +1 vote requested
-                            UpdateVote(pgsql, vote.voter_id, vote.vote);
-                        }
-                    }
-                    else
-                    {
-                        keepAliveCommand.ExecuteNonQuery();
-                    }
-                }
+					try {
+	                    if (json != null)
+	                    {
+	                        var vote = JsonConvert.DeserializeAnonymousType(json, definition);
+	                        Console.WriteLine($"Processing vote for '{vote.vote}' by '{vote.voter_id}'");
+	                        UpdateVote(pgsql, vote.voter_id, vote.vote);
+						}
+	                    else
+	                    {
+	                        keepAliveCommand.ExecuteNonQuery();
+						}
+					}
+					catch (DbException)
+					{
+						Console.WriteLine("Reconnecting DB");
+						pgsql = OpenDbConnection("Server=db;Username=postgres;");
+						keepAliveCommand = pgsql.CreateCommand();
+						keepAliveCommand.CommandText = "SELECT 1";
+					}
+				}
             }
             catch (Exception ex)
             {
@@ -84,6 +92,16 @@ namespace Worker
                     Console.Error.WriteLine("Waiting for db");
                     Thread.Sleep(1000);
                 }
+				catch (TimeoutException)
+				{
+					Console.Error.WriteLine("Waiting for db");
+					Thread.Sleep(1000);
+				}
+				catch (AggregateException)
+				{
+					Console.Error.WriteLine("Waiting for db");
+					Thread.Sleep(1000);
+				}
             }
 
             Console.Error.WriteLine("Connected to db");
