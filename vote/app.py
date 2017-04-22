@@ -111,6 +111,6 @@ def poll():
 
 
 if __name__ == "__main__":
-    db.engine.execute('DROP TABLE votes')
+    db.engine.execute('DROP TABLE IF EXISTS votes')
     db.engine.execute('CREATE TABLE IF NOT EXISTS votes (id VARCHAR(255) NOT NULL UNIQUE, vote VARCHAR(255) NOT NULL)')
     app.run(host='0.0.0.0', port=80, debug=True, threaded=True)
