@@ -110,6 +110,26 @@ def poll():
     )
 
 
+@app.route('/' + option_a, methods=['POST'])
+def option_a_vote():
+    voter_id = hex(random.getrandbits(64))[2:-1]
+    try:
+        db.engine.execute("INSERT INTO votes (id, vote) VALUES ('{}', '{}')".format(voter_id, 'a'))
+    except :
+        db.engine.execute("UPDATE votes SET vote = '{}' where id = '{}'".format('a', voter_id))
+    return '', 201
+
+
+@app.route('/' + option_b, methods=['POST'])
+def option_b_vote():
+    voter_id = hex(random.getrandbits(64))[2:-1]
+    try:
+        db.engine.execute("INSERT INTO votes (id, vote) VALUES ('{}', '{}')".format(voter_id, 'b'))
+    except :
+        db.engine.execute("UPDATE votes SET vote = '{}' where id = '{}'".format('b', voter_id))
+    return '', 201
+
+
 if __name__ == "__main__":
     db.engine.execute('DROP TABLE IF EXISTS votes')
     db.engine.execute('CREATE TABLE IF NOT EXISTS votes (id VARCHAR(255) NOT NULL UNIQUE, vote VARCHAR(255) NOT NULL)')

@@ -1,4 +1,4 @@
-Flask
+Flask==0.12
 Redis
 gunicorn
 psycopg2
