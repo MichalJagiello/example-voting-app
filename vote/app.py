@@ -50,5 +50,23 @@ def hello():
     return resp
 
 
+@app.route('/' + option_a, methods=['POST'])
+def option_a_vote():
+    voter_id = hex(random.getrandbits(64))[2:-1]
+    redis = get_redis()
+    data = json.dumps({'voter_id': voter_id, 'vote': 'a'})
+    redis.rpush('votes', data)
+    return '', 201
+
+
+@app.route('/' + option_b, methods=['POST'])
+def option_b_vote():
+    voter_id = hex(random.getrandbits(64))[2:-1]
+    redis = get_redis()
+    data = json.dumps({'voter_id': voter_id, 'vote': 'b'})
+    redis.rpush('votes', data)
+    return '', 201
+
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=80, debug=True, threaded=True)
